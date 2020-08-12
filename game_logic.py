@@ -14,34 +14,37 @@ pygame.init()
 displayHeight = 600
 displayWidth = 800
 gameDisplay = pygame.display.set_mode((displayWidth,displayHeight))
+
+#adding a caption and image to the window
 pygame.display.set_caption('Go Fish')
 icon = pygame.image.load('resources\cartoon-2027752_640.png')
 pygame.display.set_icon(icon)
 
-#This is used to set background when the game loop begins
+#This is the image used for the background during the main gaem loop
 bg = pygame.image.load(r"resources\bg.png")
 
+# This function essentially tgells pygame what should always be shown during the game loop
 def game_disp():
-    displayHeight = 600
-    displayWidth = 800
-    gameDisplay = pygame.display.set_mode((displayWidth,displayHeight))
-    pygame.display.set_caption('Go Fish')
-    icon = pygame.image.load('resources\cartoon-2027752_640.png')
-    pygame.display.set_icon(icon)
-    gameDisplay.blit(bg, (0, 0))
-    score.game_score('Player', score1,0,0)
-    score.game_score('Computer', score2,675,0)
-    loadcards.comp_visual(player2,image_cards)
-    loadcards.card_visual(player1,image_cards,False)
-    gameDisplay.blit(image_cards['card_back'],(90,250))
-    if score1 > 0:
+    displayHeight = 600 #display height
+    displayWidth = 800 #display width
+    gameDisplay = pygame.display.set_mode((displayWidth,displayHeight)) #sets and stores the display 
+    pygame.display.set_caption('Go Fish') #the widow caption
+    icon = pygame.image.load('resources\cartoon-2027752_640.png') #window icon
+    pygame.display.set_icon(icon) #actaully loads the icon into the display
+    gameDisplay.blit(bg, (0, 0)) #adds the background to the game window
+    score.game_score('Player', score1,0,0) #uses a function to add the players score to the game
+    score.game_score('Computer', score2,675,0) #adds computer's score to the game
+    loadcards.comp_visual(player2,image_cards) #adds the computers cards to the game
+    loadcards.card_visual(player1,image_cards,False) #adds players cards to the game
+    gameDisplay.blit(image_cards['card_back'],(90,250)) #adds a card to the screen that represents the deck
+    if score1 > 0: #if the player has scored it will add a card to represent the pile of 'scored cards'
         gameDisplay.blit(image_cards['card_back'],(710,270))
-    if score2 > 0:
+    if score2 > 0: #same as two lines above for computer
         gameDisplay.blit(image_cards['card_back'],(710,180))
-    for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        running = False
-    
+    for event in pygame.event.get(): #this allows the game window to be closed using the 'x' at the top of the window
+        if event.type == pygame.QUIT:
+            running = quit()
+
 
 #Timer that is later used to set fps
 clock = pygame.time.Clock()
@@ -49,42 +52,42 @@ clock = pygame.time.Clock()
 #Function defined in loadcards that loads all card images
 image_cards = loadcards.loadallcards()
 
+#loads the sounds used in the game
 card_sound = pygame.mixer.Sound('resources\card_sound.wav')
 deck_sound = pygame.mixer.Sound('resources\deck_sound.wav')
 score_sound = pygame.mixer.Sound('resources\score_sound.wav')
 
-
+#I wanted to put this function in another module, but could not get it to work outside of the main.
+#this function is how the cards are animated moving throughout the game
 def card_animation(y_start, y_end, x_start,x_end,text_option=None,card_type=None,player_num=None):
     animate = True
-    pygame.mixer.Sound.play(card_sound)
-    if x_start == x_end:
+    pygame.mixer.Sound.play(card_sound) #plays the card sound
+    if x_start == x_end: #if the starting x position and edning position are the same then the x speed will be 0
         x_speed = 0
     else:
-        x_speed = 10 * ((x_start-x_end)/abs(x_start-x_end)) #returns the speed with direction
-    if y_start == y_end:
+        x_speed = 10 * ((x_start-x_end)/abs(x_start-x_end)) #if the start and end positions are not the same, then it will set the spped to 10 and the following logic will tell it whther it is positive or negative movement
+    if y_start == y_end: #see above for x
         y_speed = 0
     else:
-        y_speed = 10 * ((y_start-y_end)/abs(y_start-y_end)) #returns the speed with direction
-    while animate:
-        game_disp()
-        if text_option == 1:
+        y_speed = 10 * ((y_start-y_end)/abs(y_start-y_end)) 
+    while animate: #this is the animation loop
+        game_disp() #resets the gamedisplay at the start of each loop
+        if text_option == 1: #if specified by the function this will make it display what card is being given and by who
             score.comp_speak(('I will give you my '+ card_type + 's!'),player_num)
-        if text_option == 2:
+        if text_option == 2: #if specified by the function this will make it display a player saying go fish during the animatino
             score.comp_speak('Go Fish!',player_num)
-        gameDisplay.blit(image_cards['card_back'],(x_start,y_start))
-        y_start -= y_speed
+        gameDisplay.blit(image_cards['card_back'],(x_start,y_start)) #adds the card image to the screen
+        y_start -= y_speed #changes the coordinates for the card to display on the next cycle of tyhe loop
         x_start -= x_speed
-        if y_start == y_end:
+        if y_start == y_end: #if the y coordinates reach the end, the y speed is set to zero so it does not continue
             y_speed = 0
-        if x_start == x_end:
+        if x_start == x_end: #see above for y
             x_speed = 0
-        if y_start == y_end and x_start == x_end:
+        if y_start == y_end and x_start == x_end: #if both x and y coordinates have made it to the end position, then the loop ends
             animate = False
-        pygame.display.update()
-        clock.tick(60)
+        pygame.display.update() #updates the display
+        clock.tick(60) #sets fps to 60
 
-
-        
 
 ######################### End of (1)
 
@@ -120,13 +123,13 @@ def simple_ask(player):
     cardname = player[card_ind]
     #print(cardname)
     if cardname[0] in ['A','2','3','4','5','6','7','8','9','10','J','Q','K']:
-        score.comp_speak(('Do you have any ' + cardname[0] + "s?"),"player2") #for displaying the question.
-        pygame.display.update()
-        clock.tick(60)
-        time.sleep(1)
+        score.comp_speak(('Do you have any ' + cardname[0] + "s?"),"player2") #this function displays the what card is being asked, becasue this loop is only run by the computer is is specified as 'player2'
+        pygame.display.update() #updates the display 
+        clock.tick(60) #fps 60
+        time.sleep(1) #pauses for 1 second for users to read the computer's question
         return cardname[0]
     elif cardname[0] == '1':
-        score.comp_speak(('Do you have any ' + cardname[0:2] + "s?"),"player2")
+        score.comp_speak(('Do you have any ' + cardname[0:2] + "s?"),"player2") #this functions the same as above
         pygame.display.update()
         clock.tick(60)
         time.sleep(1)
@@ -140,7 +143,7 @@ def simple_ask(player):
 
 #    return cardname
 
-def human_ask():
+def human_ask(): #not used in the visulaized mode.
     ask = input("Do you have any XXXXs? (Ask for a card type): ")
     cardname = ask[0].upper()
     return cardname
@@ -153,13 +156,13 @@ def beingasked(kind,player,player_num):
     give = []
     global turn
     if len(kind) > 2: #this ifelse returns the players cards as just the card type (computer is already done through simple ask)
-        if kind[:1] == '10':
+        if kind[:1] == '10': #ten is done on its own because it is the only 2 character number
             card_type = 10
         else: 
-            card_type = kind[0]
+            card_type = kind[0] #all other can be classified as by the first digit
     else:
-        card_type = kind
-    card_type = what_kind[card_type]
+        card_type = kind #for the cards already changed by simple ask, will be passed through
+    card_type = what_kind[card_type] #this changes card type into the full word version - ie Q to queen
 
     for i in range(len(player)): #select cards to give
         if player[i][0] == kind[0]:
@@ -171,23 +174,22 @@ def beingasked(kind,player,player_num):
     
     if len(give) == 0:  # say 'go fish' if there's no available cards
         print('Go fish')
-        if player_num == 'player1': #give card cinematic
+        if player_num == 'player1': #this sets the starting and ending coordinates for the subsequent card animation for the player
             y_start = 250
             y_end = 80
             x_start = 90
             x_end =400
-        else:
+        else: #this sets the coordinations for the computer
             y_start = 250
             y_end = 380
             x_start = 90
             x_end =400
-        card_animation(y_start, y_end, x_start, x_end,2,player_num=player_num)
-        give = deal(1)
+        card_animation(y_start, y_end, x_start, x_end,2,player_num=player_num) #runs the animation
+        give = deal(1) 
         print('fished',give)
         turn = False
     else:       # display transfered cards if there are cards to give
-        # score.comp_speak(('I will give you my '+ what_kind[card_type] + 's!'),player_num) 
-        if player_num == 'player1': #give card cinematic
+        if player_num == 'player1': #this is the animation for when a card is given from player to computer or visa versa. similar to the above
             y_start = 380
             y_end = 70
         else:
@@ -211,7 +213,7 @@ def getcards(cards,player,player_score,player_num):
     if len(thistype) == 4: # see if you have 4 cards of this kind and get a point
         for i in thistype: # if so remove these 4 cards and score = 1
             player.remove(i)
-        if player_num == 'player1': #give card cinematic
+        if player_num == 'player1': #this plays tyhe animation for scoring cards to move to the 'scored cards pile'
             y_start = 380
             y_end = 270
             x_start = 400
@@ -221,8 +223,8 @@ def getcards(cards,player,player_score,player_num):
             y_end = 180
             x_start = 400
             x_end = 710
-        pygame.mixer.Sound.play(score_sound)
-        card_animation(y_start, y_end, x_start, x_end)
+        pygame.mixer.Sound.play(score_sound) #plays the score sound
+        card_animation(y_start, y_end, x_start, x_end) #runs the animation using the specifications above
         player_score += 1
     return (player, player_score)
 
@@ -245,7 +247,7 @@ def result():
     global score2
     if score1 > score2:
         print('player1 you won!')
-        score.game_over("You WON!!!")
+        score.game_over("You WON!!!") #uses function that displays messages to the screen
     elif score1 == score2:
         print('it is a tie!')
         score.game_over("Its a Tie!")
@@ -258,7 +260,7 @@ def result():
 ######################## (3) Predefined game variables
 
 # define the initial pool as a list
-deck_backup = ['A_C','A_S','A_D','A_H',
+deck_backup = ['A_C','A_S','A_D','A_H', #made to define the game deck and redefine it if the player wantes to play again
         '2_C','2_S','2_D','2_H',
         '3_C','3_S','3_D','3_H',
         '4_C','4_S','4_D','4_H',
@@ -272,9 +274,10 @@ deck_backup = ['A_C','A_S','A_D','A_H',
         'Q_C','Q_S','Q_D','Q_H',
         'K_C','K_S','K_D','K_H']
 
-deck = deck_backup.copy()
+deck = deck_backup.copy() #copies the backup deck into the game deck
 
-#Type to number/name
+#Type to number/name. this is used to translate the card types into words for the display. 10 and 1 are both ten because I was having a 
+# glitch where the computer was asking for ones (which obviously dont exist) but still ran the code for tens so I just made both translate into 10 which works
 what_kind = {'1':'ten','2':'two','3':'three','4':'four','5':'five','6':'six','7':'seven',
 '8':'eight','9':'nine','10':'ten','J':'jack','Q':'queen','K':'king','A':'ace'}
 
@@ -292,19 +295,19 @@ cardtransfer = []
 # starting_hand = int(input("How many card to start with? "))
 starting_hand = 5
 
-
-
 # global for a turn
 turn = True
 
+#variable for the game loop
 end = False
 
+#sets the player and computer's hands
 player1 = deal(starting_hand)
 print('player1 got,', player1)
 player2 = deal(starting_hand)
 print('player2 got,', player2)
 
-
+#turn variables
 player1_turn_over = False
 player2_turn_over = True
 
@@ -316,6 +319,7 @@ intro = True
 ######################## End of (3)
 
 
+
 ######################## (4) Main Loop
 # Things to do
 # merge ifend and result
@@ -324,50 +328,46 @@ intro = True
 
 ### Implement Settings/AI/ETC
 
-
-
-
 #print(player2)
 #print(deck)
 #print(deck_backup)
 
-
-
+#this is the main game loop
 while running:
-    for event in pygame.event.get():
+    for event in pygame.event.get(): #these three lines allow the 'x' in top  of the sindow to funtion
         if event.type == pygame.QUIT:
             running = False
-    while intro:
+    while intro: #this runs the intro screen (loop defined in 'main_menu' module)
         menu = main.main_menu()
-        if menu == "Play":
+        if menu == "Play": #if the play button within the main menu returns play then into loop ends and game begins
             intro = False
-            pygame.mixer.Sound.play(deck_sound)
+            pygame.mixer.Sound.play(deck_sound) #deck shuffle sound
     
-    while end == False: 
-        game_disp()
+    while end == False: #this is the actual game loop
+        game_disp() #loads all the basic game display images (see definition above)
         while player1_turn_over == False:
-            game_disp()
+            game_disp() #loads game display within the player turn loop
             end = ifend() # added this because game kept crashing at player 2's turn, so added this to be safe
             if end == True:
                 break
-            #ask = simple_ask(player1)
-            #ask = human_ask()
-            ask = None
+            #ask = simple_ask(player1) #this if for running AI vs AI
+            #ask = human_ask() #this will alow user to play through console
+            ask = None #sets ask to none for the loop below
             while ask == None:
-                game_disp()
+                game_disp() #loads game display during the player asking loop
                 #score.game_score('1', score1,0,0)
-                ask = loadcards.card_visual(player1,image_cards,True)
-                pygame.display.update()
-                clock.tick(60)
+                ask = loadcards.card_visual(player1,image_cards,True) #runs finction that allows player to select card with mouse. Also adds visuals to card when mouse is hovering over it
+                pygame.display.update() #updates the display so that the card visuals can be seen
+                clock.tick(60) #sets fps
             print('player1 asked', ask) 
             print('player2 said:')
-            player2, cards = beingasked(ask, player2,'player2')
-            player1, score1 = getcards(cards,player1,score1,'player1')
+            player2, cards = beingasked(ask, player2,'player2') #based on player selection runs animation for go fish or card transfer and handles the game logic (also sets turn to false if go fish)
+            player1, score1 = getcards(cards,player1,score1,'player1') #handles the game logic of if player has 4 cards and runs the animiation if so
             print('player1 now has:',player1,'score=',score1)
             end = ifend()
-            pygame.display.update()
-            clock.tick(60)
-            if turn == False:
+            pygame.display.update() #updates the display
+            clock.tick(60) #fps at 60
+            if turn == False: #logic for changin turns
                 player2_turn_over = False
                 player1_turn_over = True
                 turn = True
@@ -375,7 +375,7 @@ while running:
         if end == True:
             break
         
-        while player2_turn_over == False:
+        while player2_turn_over == False: #this is essentially the same loop as above except for the computer. Only difference is the simple ask istead of the human ask
             game_disp()
             end = ifend() # added this because game kept crashing due to 0 cards here
             if end == True:
@@ -394,12 +394,12 @@ while running:
                 player2_turn_over = True
                 turn = True   
         pygame.display.update()
-        clock.tick(60) #sets the fps
+        clock.tick(60) 
     game_disp()
-    result()
-    play_again_button = main.button("Again?",150,450,100,50,(0,200,0),(0,255,0),"Play")
-    quit_game_button = main.button("Quit",550,450,100,50,(255,0,0),(200,0,0),"Quit")
-    if play_again_button == 'Play':
+    result() #when the game ends this runs to declare a winner or tie
+    play_again_button = main.button("Again?",150,450,100,50,(0,200,0),(0,255,0),"Play") #button to play again
+    quit_game_button = main.button("Quit",550,450,100,50,(255,0,0),(200,0,0),"Quit") #button to quit
+    if play_again_button == 'Play': #if play again this resets everything back to tyhe initgial game settings.
         player1 = []
         player2 = []
         score1 = 0
@@ -408,9 +408,9 @@ while running:
         player1 = deal(starting_hand)
         player2 = deal(starting_hand)
         end = False
-    if quit_game_button == "Quit":
+    if quit_game_button == "Quit": #if player quits it ends the game
         pygame.quit()
-    pygame.display.update()
+    pygame.display.update() #updates the display during the results display
     clock.tick(60) #sets the fps
 pygame.quit()
 quit()
