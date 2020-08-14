@@ -36,7 +36,8 @@ def game_disp():
     score.game_score('Computer', score2,675,0) #adds computer's score to the game
     loadcards.comp_visual(player2,image_cards) #adds the computers cards to the game
     loadcards.card_visual(player1,image_cards,False) #adds players cards to the game
-    gameDisplay.blit(image_cards['card_back'],(90,250)) #adds a card to the screen that represents the deck
+    if len(deck) > 0:
+        gameDisplay.blit(image_cards['card_back'],(90,250)) #adds a card to the screen that represents the deck
     if score1 > 0: #if the player has scored it will add a card to represent the pile of 'scored cards'
         gameDisplay.blit(image_cards['card_back'],(710,270))
     if score2 > 0: #same as two lines above for computer
@@ -184,8 +185,8 @@ def beingasked(kind,player,player_num):
             y_end = 380
             x_start = 90
             x_end =400
-        card_animation(y_start, y_end, x_start, x_end,2,player_num=player_num) #runs the animation
         give = deal(1) 
+        card_animation(y_start, y_end, x_start, x_end,2,player_num=player_num) #runs the animation
         print('fished',give)
         turn = False
     else:       # display transfered cards if there are cards to give
@@ -246,13 +247,13 @@ def result():
     global score1
     global score2
     if score1 > score2:
-        print('player1 you won!')
+        #print('player1 you won!')
         score.game_over("You WON!!!") #uses function that displays messages to the screen
     elif score1 == score2:
-        print('it is a tie!')
+        #print('it is a tie!')
         score.game_over("Its a Tie!")
     else:
-        print('player2 you won!')
+        #print('player2 you won!')
         score.game_over("You LOST")
 
 ######################## End of (2)
